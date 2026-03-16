@@ -23,7 +23,7 @@ With this plugin, the File will have `ancestor_restrictions_apply: true`, indica
 
 ```bash
 cd /path/to/archivesspace/plugins
-git clone https://github.com/YOUR_USERNAME/archivesspace-ancestor-restrictions.git ancestor_restrictions
+git clone https://github.com/NCSU-Libraries/archivesspace_ancestor_restrictions_plugin.git ancestor_restrictions
 ```
 
 Or download and extract the ZIP file to your `plugins/` directory.
@@ -50,20 +50,6 @@ AppConfig[:plugins] = ['other_plugins', 'ancestor_restrictions']
 
 Once installed, the `ancestor_restrictions_apply` field will automatically appear in all archival object JSON responses.
 
-### API Example
-
-```bash
-# Authenticate
-curl -s -X POST \
-  http://localhost:8089/users/admin/login \
-  -d "password=admin" | jq -r '.session'
-
-# Get an archival object
-curl -s -H "X-ArchivesSpace-Session: YOUR_SESSION_TOKEN" \
-  http://localhost:8089/repositories/2/archival_objects/1 | \
-  jq '.ancestor_restrictions_apply'
-```
-
 ### Response Example
 
 ```json
@@ -81,16 +67,6 @@ curl -s -H "X-ArchivesSpace-Session: YOUR_SESSION_TOKEN" \
   }
 }
 ```
-
-## How It Works
-
-The plugin:
-
-1. Extends the archival object schema to include the `ancestor_restrictions_apply` field (readonly)
-2. Checks the root resource's `restrictions` field (note: resources use `restrictions`, not `restrictions_apply`)
-3. Walks up the parent chain checking each archival object's `restrictions_apply` field
-4. For batch operations (like `/children` endpoints), recursively fetches ALL ancestors in an optimized way
-5. Returns the calculated value in the JSON response
 
 ### Performance Optimization
 
