@@ -2,14 +2,6 @@
 
 An ArchivesSpace plugin that adds an `ancestor_restrictions_apply` field to archival object JSON responses, indicating whether any ancestor (parent archival objects or root resource) has restrictions applied.
 
-## Features
-
-- 🔍 **Automatic Detection**: Checks entire ancestry chain for restrictions
-- ⚡ **Optimized Performance**: Efficient queries for both single records and batch operations
-- 🔒 **Read-only Field**: Calculated dynamically, no database changes required
-- 📊 **Comprehensive Testing**: Full RSpec test suite included
-- 🎯 **API Integration**: Works seamlessly with existing ArchivesSpace API endpoints
-
 ## Use Case
 
 This plugin is useful when you need to know if an archival object inherits restrictions from any ancestor in its hierarchy, without having to manually traverse the entire tree structure via the API.
@@ -110,10 +102,6 @@ The plugin:
   - Employs caching to prevent redundant calculations for records with shared ancestors
 - **Depth limit**: 100 levels maximum to prevent infinite loops
 
-**Example**: For 100 records with average 3-level hierarchy:
-- Old approach would make ~400 queries
-- New approach makes ~4 queries
-
 ## Testing
 
 ### Backend RSpec Tests
@@ -130,94 +118,11 @@ cp plugins/ancestor_restrictions/spec/archival_object_restrictions_spec.rb backe
 build/run backend:test -Dspec='archival_object_restrictions_spec.rb'
 ```
 
-**Test Coverage:**
-- ✅ Resource-level restrictions inheritance
-- ✅ Parent archival object restrictions inheritance  
-- ✅ Multi-level hierarchies (4+ levels deep)
-- ✅ Batch operations with shared ancestors
-- ✅ Large batch operations (20+ records)
-- ✅ Edge cases: missing parents, depth limits, empty batches
-- ✅ Integration with JSON model serialization
-- ✅ Early exit optimization verification
-
-**Test Results**: 17 examples, 0 failures
-
-### Manual Testing
-
-Python test scripts are included in the repository for interactive testing scenarios.
-
-## Technical Details
-
-### Files Structure
-
-```
-ancestor_restrictions/
-├── LICENSE
-├── README.md
-├── .gitignore
-├── backend/
-│   ├── model/
-│   │   └── archival_object_restrictions.rb  # Core calculation logic
-│   └── plugin_init.rb                        # Plugin integration hook
-├── schemas/
-│   └── archival_object_ext.rb                # Schema extension
-└── spec/
-    └── archival_object_restrictions_spec.rb  # RSpec tests
-```
-
-### Implementation Approach
-
-The plugin follows the same pattern as ArchivesSpace's built-in `has_unpublished_ancestor` field:
-
-1. **Schema Extension** (`schemas/archival_object_ext.rb`): Adds readonly boolean field
-2. **Calculation Module** (`backend/model/archival_object_restrictions.rb`): Contains the logic for both single and batch calculations
-3. **Integration Hook** (`backend/plugin_init.rb`): Uses `class_eval` to inject the field into JSON responses
-
-### Key Methods
-
-- `calculate_ancestor_restrictions_apply(obj)` - Single record calculation (iterative with early exit)
-- `calculate_ancestor_restrictions_apply_batch(objs)` - Batch processing with optimized queries
-- `collect_all_ancestor_ids(objs)` - Fetches ALL ancestors level-by-level for deep hierarchies
-
 ## Compatibility
 
 - **ArchivesSpace Version**: v3.0+ (tested on v4.0.0-dev)
 - **Database**: MySQL, PostgreSQL (any database supported by ArchivesSpace)
 - **Ruby/JRuby**: 9.4.x+
-
-## Migration from Local Plugin
-
-If you have been using this plugin in `plugins/local/`, you can migrate to the standalone version:
-
-1. Disable the local plugin by removing relevant files from `plugins/local/`
-2. Install this standalone plugin as described above
-3. The data model is identical, so no database changes are needed
-
-## Troubleshooting
-
-### Plugin Not Loading
-
-Check your ArchivesSpace logs for errors:
-
-```bash
-tail -f logs/archivesspace.out
-```
-
-Ensure the plugin is listed in `config/config.rb` and ArchivesSpace has been restarted.
-
-### Field Not Appearing
-
-1. Verify the plugin is enabled: Check startup logs for "Loaded plugin: ancestor_restrictions"
-2. Clear any API response caches
-3. Test with a fresh API request
-
-### Performance Issues
-
-The plugin is optimized for performance, but if you experience issues with very large hierarchies:
-
-- Consider adding a database column for caching (requires schema migration)
-- Adjust the `max_depth` limit in the code if needed
-- Monitor database query logs to identify bottlenecks
 
 ## Contributing
 
@@ -231,23 +136,3 @@ Contributions are welcome! Please:
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details
-
-## Support
-
-- **Issues**: [GitHub Issues](https://github.com/YOUR_USERNAME/archivesspace-ancestor-restrictions/issues)
-- **ArchivesSpace**: [archivesspace.org](https://archivesspace.org)
-- **Technical Docs**: [ArchivesSpace Technical Documentation](https://archivesspace.github.io/tech-docs/)
-
-## Changelog
-
-### Version 1.0.0 (2026-03-16)
-
-- Initial release
-- Single record and batch calculation support
-- Comprehensive test suite
-- Performance optimizations for deep hierarchies
-- Full documentation
-
-## Credits
-
-Developed for the ArchivesSpace community.

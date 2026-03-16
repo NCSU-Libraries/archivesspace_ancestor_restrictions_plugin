@@ -1,9 +1,0 @@
-# ArchivesSpace Ancestor Restrictions Plugin Configuration
-#
-# Plugin metadata for ArchivesSpace plugin system
-
-# No dependencies on other plugins
-depends_on_plugins: []
-
-# No recommended plugins
-recommends_plugins: []
